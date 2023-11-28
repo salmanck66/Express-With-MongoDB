@@ -28,96 +28,82 @@
     </form>
     <script>
         function updateDonor(index) {
-        let name=document.getElementById('name').value
-        let age=document.getElementById('age').value
-        let phonenumber=document.getElementById('phonenumber').value
-        let bloodgroup=document.getElementById('bloodgroup').value
-        let message = ""
-        let count = 0
+            // Reset error messages
+            document.getElementById('nameError').style.display = 'none';
+            document.getElementById('phoneError').style.display = 'none';
+            document.getElementById('ageError').style.display = 'none';
+            document.getElementById('bloodError').style.display = 'none';
 
-        // if (!/^[a-zA-Z\s]+$/.test(name) || name.trim().length < 2) {
-        //         message="Name should contain only alphabets and be greater than 3 characters\n"
-        //         document.getElementById('nameError').innerHTML=message
-        //         document.getElementById('nameError').style.display='block'
-        //         count++
-        //     }
-        //     else
-        // {
-        //     document.getElementById('nameError').style.display='none'
-        // }
+            let name = document.getElementById('name').value;
+            let age = document.getElementById('age').value;
+            let phonenumber = document.getElementById('phonenumber').value;
+            let bloodgroup = document.getElementById('bloodgroup').value;
 
-        // if (phonenumber.trim() === '' || isNaN(phonenumber) || phonenumber.length !== 10) {
-        //         document.getElementById('phoneError').innerHTML=message
-        //         document.getElementById('phoneError').style.display='block'
-        //         count++
-        //     }
-        //     else
-        // {
-        //     document.getElementById('phoneError').style.display='none'
-        // }
-        // if (age.trim() === '' || isNaN(age) || age < 18)
-        // {
-        //     document.getElementById('ageError').innerHTML=message
-        //     document.getElementById('ageError').style.display='block'
-        //     count++
-        // }
-        // else
-        // {
-        //     document.getElementById('ageError').style.display='none'
-        // }
+            let count = 0;
 
-        // if(count===0)
-        // {
-            const formData = {
-                index: index,
-                name: name,
-                age: age,
-                phonenumber: phonenumber ,
-                bloodgroup: bloodgroup
-            };
-            fetch('/update', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            })
-                .then(response => {
-                    if (response.ok) {
-                        console.log('Donor updated successfully');
-                        // window.location.reload(); // Reload the page or update UI as needed
-                        window.location.href='/'
-                    } else {
-                        console.error('Failed to update donor');
-                    }
+            // Validation for Name
+            if (!/^[a-zA-Z\s]+$/.test(name) || name.trim().length < 2) {
+                let message = "Name should contain only alphabets and be greater than 2 characters";
+                document.getElementById('nameError').innerHTML = message;
+                document.getElementById('nameError').style.display = 'block';
+                count++;
+            }
+
+            // Validation for Phone Number
+            if (phonenumber.trim() === '' || isNaN(phonenumber) || phonenumber.length !== 10) {
+                let message = "Phone number should be a 10-digit number.";
+                document.getElementById('phoneError').innerHTML = message;
+                document.getElementById('phoneError').style.display = 'block';
+                count++;
+            }
+
+            // Validation for Age
+            if (age.trim() === '' || isNaN(age) || age < 18) {
+                let message = "Age should be a number and greater than 18.";
+                document.getElementById('ageError').innerHTML = message;
+                document.getElementById('ageError').style.display = 'block';
+                count++;
+            }
+
+            // Validation for Blood Group
+            var bloodGroupPattern = /^(A|B|AB|O)[+-]$/;
+            if (!bloodGroupPattern.test(bloodgroup)) {
+                let message = "Invalid blood group format. Please use A+, A-, B+, B-, O+, O-, AB+, AB-";
+                document.getElementById('bloodError').innerHTML = message;
+                document.getElementById('bloodError').style.display = 'block';
+                count++;
+            }
+
+            // Check if there are no validation errors
+            if (count === 0) {
+                // Perform the update
+                const formData = {
+                    index: index,
+                    name: name,
+                    age: age,
+                    phonenumber: phonenumber,
+                    bloodgroup: bloodgroup
+                };
+
+                fetch('/update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        // }else
-        // {
-        //     // alert(message)
-        // }
-        
-
-        // 
-
-       
-
-        // if (phonenumber.trim() === '' || isNaN(phoneNumber) || phonenumber.length !== 10) {
-        //         message+="-Phone number should be a 10-digit number.\n"
-        //         count++
-        //     }
-
-        // if (age.trim() === '' || isNaN(age) || age < 18) {
-        //         message+="-Age should be a number and greater than 18\n"
-        //         count++
-        //     }
-
-        // if(count>0)
-        // {
-        // alert(message)
-        // }else
+                    .then(response => {
+                        if (response.ok) {
+                            console.log('Donor updated successfully');
+                            window.location.href = '/';
+                        } else {
+                            console.error('Failed to update donor');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
         }
     </script>
 
