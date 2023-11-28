@@ -26,7 +26,7 @@
                     <td><%= donor.bloodgroup %></td>
                     <td>
                         <form action="/edit/<%= index %>" method="GET" style="display: inline;">
-                            <p class="id"><%= index %></p>
+                            <p class="id" style="display: none;"><%= index %></p>
                             <input type="hidden" name="name" value="<%= donor.name %>">
                             <input type="hidden" name="age" value="<%= donor.age %>">
                             <input type="hidden" name="phonenumber" value="<%= donor.phonenumber %>">
