@@ -60,6 +60,7 @@ app.post('/post',async (req,res)=>
 
 app.get('/edit/:id', async (req, res) => {
   const donorId = req.params.id;
+  console.log(donorId);
   try {
     const donor = await dmodel.findById(donorId);
     if (donor) {
@@ -74,30 +75,25 @@ app.get('/edit/:id', async (req, res) => {
   }
 });
 
-app.put('/update/:id',async (req, res) => {
+app.post('/update/:id', async (req, res) => {
   const donorId = req.params.id;
+  console.log(donorId);
   const { name, age, phonenumber, bloodgroup } = req.body;
+  console.log(name,age,phonenumber,bloodgroup);
 
-  try
-  {
-    const result = await dmodel.findByIdAndUpdate(donorId, { name, age, phonenumber, bloodgroup })
-    if(result)
-    {
+  try {
+    const result = await dmodel.findByIdAndUpdate(donorId, { name, age, phonenumber, bloodgroup });
+    if (result) {
       console.log('Donor updated successfully');
       res.redirect('/');
-    }else
-    {
+    } else {
       console.log('Donor not found');
       res.status(404).json({ error: 'Donor not found' });
     }
-
-  }
-  catch(error)
-  {
+  } catch (error) {
     console.error('Error updating donor:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-
 });
 
 app.delete('/delete/:id', async (req, res) => {
