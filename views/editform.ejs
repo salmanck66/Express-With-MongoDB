@@ -28,7 +28,7 @@
     </form>
     <script>
         function updateDonor(index) {
-            // Reset error messages
+
             document.getElementById('nameError').style.display = 'none';
             document.getElementById('phoneError').style.display = 'none';
             document.getElementById('ageError').style.display = 'none';
@@ -58,8 +58,8 @@
             }
 
             // Validation for Age
-            if (age.trim() === '' || isNaN(age) || age < 18) {
-                let message = "Age should be a number and greater than 18.";
+            if (age.trim() === '' || isNaN(age) || age < 18 || age >60) {
+                let message = "Age should be a between 18 and 60.";
                 document.getElementById('ageError').innerHTML = message;
                 document.getElementById('ageError').style.display = 'block';
                 count++;

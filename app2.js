@@ -1,5 +1,8 @@
 const express = require('express');
 const fs = require('fs')
+const mongoose = require('mongoose')
+
+mongoose.connect('mongodb://localhost:27017/crud')
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 
@@ -10,20 +13,36 @@ app.use(methodOverride('_method'));//Since you are using the app.put method for 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+const Dschema = new mongoose.Schema({
+  name : String,
+  age : Number,
+  phonenumber: Number,
+  bloodgroup: String
+})
+
+const dmodel = mongoose.model('donors',Dschema)
 
 app.set('view engine', 'ejs');
 // app.set('views', 'views');
 
 
-
-app.get('/', (req, res) => {
-    const jsonData = fs.readFileSync('data.json', 'utf-8');
-    const donors = JSON.parse(jsonData);
-    res.render('index', { donors: donors, index: -1 });
-
-  });
-
-
+// app.get('/', (req, res) => {
+//     const jsonData = fs.readFileSync('data.json', 'utf-8');
+//     const donors = JSON.parse(jsonData);
+//     res.render('index', { donors: donors, index : 0});
+//   });
+app.get('/',async (req,res)=>
+{
+  try
+  {
+    const donors = await dmodel.find({})
+    res.render('index',{donors : donors})
+  }
+  catch(error)
+  {
+    console.log(error);
+  }
+})
 
 app.get('/adduser', (req, res) => {
     res.render('form');
@@ -59,7 +78,7 @@ app.post('/post', (req, res) => {
 });
 
 app.put('/update', (req, res) => {
-  console.log("Hellooo");
+  console.log("ressss");
   const updatedData = req.body;
   const index = parseInt(updatedData.index);
   const jsonData = fs.readFileSync('data.json', 'utf-8');
@@ -78,7 +97,7 @@ app.put('/update', (req, res) => {
     const index = parseInt(req.params.index);
     const jsonData = fs.readFileSync('data.json', 'utf-8');
     const existingData = JSON.parse(jsonData);
-
+    
     if (index >= 0 && index < existingData.length) {
         // Remove the donor at the specified index
         existingData.splice(index, 1);
