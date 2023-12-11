@@ -24,16 +24,10 @@
                     <td><%= donor.age %></td>
                     <td><%= donor.phonenumber %></td>
                     <td><%= donor.bloodgroup %></td>
+                    <td style="display: none;"><%= donor._id %></td>
                     <td>
-                        <form action="/edit/<%= index %>" method="GET" style="display: inline;">
-                            <p class="id" style="display: none;"><%= index %></p>
-                            <input type="hidden" name="name" value="<%= donor.name %>">
-                            <input type="hidden" name="age" value="<%= donor.age %>">
-                            <input type="hidden" name="phonenumber" value="<%= donor.phonenumber %>">
-                            <input type="hidden" name="bloodgroup" value="<%= donor.bloodgroup %>">
-                            <button class="btn btn-primary" type="submit">Edit</button>
-                        </form> 
-                            <button class="btn btn-danger" onclick="deleteDonor(<%= index %>)">Delete</button>
+                        <a href="/edit/<%= donor._id %>" class="btn btn-primary">Edit</a>
+                        <button class="btn btn-danger" onclick="deleteDonor('<%= donor._id %>')">Delete</button>
                     </td>
                 </tr>
             <% }); %>
@@ -44,23 +38,21 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
 
 <script>
-    function deleteDonor(index) {
-
-            fetch(`/delete/${index}`, {
-                method: 'DELETE',
-            })
-            .then(response => {
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-
-                    console.error('errror');
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        }
+    function deleteDonor(donorId) {
+        fetch(`/delete/${donorId}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                console.error('Error deleting donor');
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }
 </script>
 </body>
 </html>

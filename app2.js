@@ -1,5 +1,4 @@
 const express = require('express');
-const fs = require('fs')
 const mongoose = require('mongoose')
 
 mongoose.connect('mongodb://localhost:27017/crud')
@@ -18,19 +17,12 @@ const Dschema = new mongoose.Schema({
   age : Number,
   phonenumber: Number,
   bloodgroup: String
-})
+},{ versionKey: false })
 
 const dmodel = mongoose.model('donors',Dschema)
 
 app.set('view engine', 'ejs');
-// app.set('views', 'views');
 
-
-// app.get('/', (req, res) => {
-//     const jsonData = fs.readFileSync('data.json', 'utf-8');
-//     const donors = JSON.parse(jsonData);
-//     res.render('index', { donors: donors, index : 0});
-//   });
 app.get('/',async (req,res)=>
 {
   try
@@ -48,65 +40,85 @@ app.get('/adduser', (req, res) => {
     res.render('form');
   });
 
+app.post('/post',async (req,res)=>
+{
+  try{
+    const newUser = new dmodel({
+      name : req.body.name,
+      age : req.body.age,
+      phonenumber : req.body.phonenumber,
+      bloodgroup : req.body.bloodgroup
+    })
+    await newUser.save()
+    res.redirect('/')
+  }catch(error)
+  {
+    console.error('Error saving user data to MongoDB:', error);
+    res.status(500).send('Internal Server Error');
+  }
+})
 
-app.post('/post', (req, res) => {
-    const userData =
-    {
-        name : req.body.name,
-        age : req.body.age,
-        phonenumber : req.body.phonenumber,
-        bloodgroup : req.body.bloodgroup
-    }
-    // Read existing data from data.json
-    const existingData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
-    existingData.push(userData);
-    fs.writeFileSync('data.json', JSON.stringify(existingData, null, 2));
-    res.redirect('/');
-  });
-
-  app.get('/edit/:index', (req, res) => {
-    const index = req.params.index;
-    const jsonData = fs.readFileSync('data.json', 'utf-8');
-    const donors = JSON.parse(jsonData);
-
-    if (index >= 0 && index < donors.length) {
-        const user = donors[index];
-        res.render('editform', { user: user, index: index });
+app.get('/edit/:id', async (req, res) => {
+  const donorId = req.params.id;
+  try {
+    const donor = await dmodel.findById(donorId);
+    if (donor) {
+      res.render('editform', { donor: donor });
     } else {
-        res.status(404).send('Donor not found.');
+      console.log('Donor not found');
+      res.status(404).json({ error: 'Donor not found' });
     }
-});
-
-app.put('/update', (req, res) => {
-  console.log("ressss");
-  const updatedData = req.body;
-  const index = parseInt(updatedData.index);
-  const jsonData = fs.readFileSync('data.json', 'utf-8');
-  const existingData = JSON.parse(jsonData);
-
-  if (index >= 0 && index < existingData.length) {
-      existingData[index] = updatedData;
-      fs.writeFileSync('data.json', JSON.stringify(existingData, null, 2));
-      res.sendStatus(204);
-  } else {
-      res.status(404).send('Donor not found.');
+  } catch (error) {
+    console.error('Error fetching donor for edit:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-  app.delete('/delete/:index', (req, res) => {
-    const index = parseInt(req.params.index);
-    const jsonData = fs.readFileSync('data.json', 'utf-8');
-    const existingData = JSON.parse(jsonData);
-    
-    if (index >= 0 && index < existingData.length) {
-        // Remove the donor at the specified index
-        existingData.splice(index, 1);
-        fs.writeFileSync('data.json', JSON.stringify(existingData, null, 2));
-        res.sendStatus(204); // Send a success status without any content
-    } else {
-        res.status(404).send('Donor not found.');
+app.put('/update/:id',async (req, res) => {
+  const donorId = req.params.id;
+  const { name, age, phonenumber, bloodgroup } = req.body;
+
+  try
+  {
+    const result = await dmodel.findByIdAndUpdate(donorId, { name, age, phonenumber, bloodgroup })
+    if(result)
+    {
+      console.log('Donor updated successfully');
+      res.redirect('/');
+    }else
+    {
+      console.log('Donor not found');
+      res.status(404).json({ error: 'Donor not found' });
     }
+
+  }
+  catch(error)
+  {
+    console.error('Error updating donor:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+
 });
+
+app.delete('/delete/:id', async (req, res) => {
+  const donorId = req.params.id;
+  try
+  {
+    const result = await dmodel.findByIdAndDelete(donorId)
+    if (result) {
+      console.log('Donor deleted successfully');
+      res.status(204).end(); // No content response for successful deletion
+    } else {
+      console.log('Donor not found');
+      res.status(404).json({ error: 'Donor not found' });
+    }
+  }
+  catch(error)
+  {
+    console.error('Error deleting donor:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+})
 
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
